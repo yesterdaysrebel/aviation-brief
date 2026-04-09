@@ -7,7 +7,7 @@ COPY web/ ./
 RUN npm run build
 
 # Go binary (embeds dist/)
-FROM golang:1.22-alpine AS builder
+FROM golang:alpine AS builder
 WORKDIR /app
 COPY go.mod ./
 RUN go mod download
@@ -16,7 +16,7 @@ COPY --from=frontend /dist ./dist
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /aviation-brief .
 
 # Runtime — small, non-root, fits K8s / GHCR
-FROM alpine:3.20
+FROM alpine:latest
 RUN adduser -D -u 65532 -g '' appuser
 WORKDIR /home/appuser
 COPY --from=builder /aviation-brief ./aviation-brief
